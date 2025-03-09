@@ -36,4 +36,8 @@ public class Booking {
     @ManyToOne
     @JoinColumn(name = "vehicle_id", nullable = false)
     private Vehicle vehicle;
+
+    private String pickupLocation;
+
+    private String dropLocation;
 }

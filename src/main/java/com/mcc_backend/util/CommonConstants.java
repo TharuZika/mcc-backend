@@ -113,20 +113,20 @@ public class CommonConstants {
 
     // JWT Constants
     @Value("${jwt.secret}")
-    public static String JWT_SECRET;
+    public static String JWT_SECRET = "1c029f6b5a56cc4ebdf3b4347fbdd6444af72eb15b59cee3e3cd5f6a225cfa2651fa7f5b53437e849854372522009fcc0e6950ad14a88aedbae7aa4a498b0129";
 
     @Value("${jwt.expiration}")
-    public static Long JWT_EXPIRATION;
+    public static Long JWT_EXPIRATION = 86400000L;
 
     @Value("${jwt.token-prefix}")
-    public static String TOKEN_PREFIX;
+    public static String TOKEN_PREFIX = "Bearer ";
 
     @Value("${jwt.header-string}")
-    public static String HEADER_STRING;
+    public static String HEADER_STRING = "Authorization";
 
     // Security Constants
     @Value("${security.public-paths}")
-    private String publicPathsString;
+    private String publicPathsString = "/api/auth/login,/api/auth/register,/api/vehicles/taxi,/api/vehicles/rental,/api/bookings";
 
     public List<String> getPublicPaths() {
         return Arrays.asList(publicPathsString.split(","));
