@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: mcc-backend
+  main:
+    allow-circular-references: true
+  datasource:
+    url: jdbc:postgresql://localhost:5432/mcc
+    username: postgres
+    password: root
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+
+jwt:
+  secret: 1c029f6b5a56cc4ebdf3b4347fbdd6444af72eb15b59cee3e3cd5f6a225cfa2651fa7f5b53437e849854372522009fcc0e6950ad14a88aedbae7aa4a498b0129
+  expiration: 86400000
+  token-prefix: "Bearer "
+  header-string: Authorization
+
+security:
+  public-paths: /api/auth/login,/api/auth/register,/api/vehicles/taxi,/api/vehicles/rental,/api/bookings
+
+response:
+  error:
+    unauthorized: "Unauthorized - No token provided"
+    token-expired: "Token has expired"
+    invalid-token: "Unauthorized - Invalid token"
+  success:
+    valid-token: "Valid token"
+
+application:
+  cors-allow-origins: http://localhost:3000 

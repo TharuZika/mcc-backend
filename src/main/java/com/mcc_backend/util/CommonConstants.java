@@ -35,9 +35,9 @@ public class CommonConstants {
     public static final char MENU_TYPE_SUB_MENU = 'S';
 
     // Roles
-    public static final int ROLE_ID_ADMIN = 1;
-    public static final int ROLE_ID_CUSTOMER = 0;
-    public static final int ROLE_ID_DRIVER = 3;
+    public static final int ROLE_ID_ADMIN = 0;
+    public static final int ROLE_ID_CUSTOMER = 1;
+    public static final int ROLE_ID_DRIVER = 2;
 
     public static final String ROLE_ADMIN = "ADMIN";
     public static final String ROLE_CUSTOMER = "CUSTOMER";

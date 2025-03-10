@@ -13,20 +13,3 @@ public class BookingRequestDto {
     private BigDecimal totalAmount;
     private CustomerDetailsDto customerDetails;
 }
-
-@Data
-class BookingDetailsDto {
-    private String serviceType;
-    private String pickupLocation;
-    private String dropLocation;
-    private String pickupDate;
-    private String pickupTime;
-    private String vehicleType;
-}
-
-@Data
-class CustomerDetailsDto {
-    private String name;
-    private String email;
-    private String phone;
-} 

@@ -16,9 +16,10 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(CommonConstants.JWT_SECRET.getBytes());
     }
 
-    public String generateToken(String username) {
+    public String generateToken(String username, String role) {
         return Jwts.builder()
                 .setSubject(username)
+                .claim("role", role)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + CommonConstants.JWT_EXPIRATION))
                 .signWith(getSigningKey())
@@ -49,10 +50,14 @@ public class JwtUtil {
                                  CommonConstants.VALID_TOKEN_MESSAGE, 
                                  claims.getSubject());
         } catch (ExpiredJwtException e) {
+            System.out.println(e.getMessage());
+            System.out.println(e);
             return new ResponseDto(CommonConstants.STATUS_UNAUTHORIZED, 
                                  CommonConstants.TOKEN_EXPIRED_MESSAGE, 
                                  null);
         } catch (JwtException e) {
+            System.out.println(e.getMessage());
+            System.out.println(e);
             return new ResponseDto(CommonConstants.STATUS_UNAUTHORIZED, 
                                  CommonConstants.INVALID_TOKEN_MESSAGE, 
                                  null);
@@ -108,5 +113,13 @@ public class JwtUtil {
         } catch (JwtException e) {
             return true;
         }
+    }
+
+    public Claims getClaimsFromToken(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 }

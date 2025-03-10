@@ -2,6 +2,7 @@ package com.mcc_backend.service.impl;
 
 import com.mcc_backend.dto.BookingRequestDto;
 import com.mcc_backend.dto.BookingResponseDto;
+import com.mcc_backend.dto.GuestCredentialsDto;
 import com.mcc_backend.dto.RegisterRequest;
 import com.mcc_backend.entity.*;
 import com.mcc_backend.entity.enums.BookingStatus;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -47,7 +49,6 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional
     public BookingResponseDto createBooking(BookingRequestDto bookingRequest) {
-        // Find or create user
         Optional<User> existingUser = userRepository.findByEmail(bookingRequest.getCustomerDetails().getEmail());
         User user;
         GuestCredentialsDto guestCredentials = null;
@@ -55,7 +56,6 @@ public class BookingServiceImpl implements BookingService {
         if (existingUser.isPresent()) {
             user = existingUser.get();
         } else {
-            // Create guest user
             String tempPassword = UUID.randomUUID().toString().substring(0, 8);
             String username = bookingRequest.getCustomerDetails().getEmail().split("@")[0] + 
                             UUID.randomUUID().toString().substring(0, 4);
@@ -74,7 +74,6 @@ public class BookingServiceImpl implements BookingService {
             guestCredentials = new GuestCredentialsDto(username, tempPassword);
         }
 
-        // Create order
         Order order = new Order();
         order.setDate(LocalDateTime.now());
         order.setTotalAmount(bookingRequest.getTotalAmount());
@@ -82,17 +81,16 @@ public class BookingServiceImpl implements BookingService {
         order.setPaymentMethod(PaymentMethod.valueOf(bookingRequest.getPaymentMethod()));
         order = orderRepository.save(order);
 
-        // Create booking
         Booking booking = new Booking();
         booking.setOrder(order);
         booking.setUser(user);
         booking.setBookingType(BookingType.valueOf(bookingRequest.getBookingDetails().getServiceType().toUpperCase()));
-        
-        // Parse date and time
+
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         String dateTimeStr = bookingRequest.getBookingDetails().getPickupDate() + " " + 
                            bookingRequest.getBookingDetails().getPickupTime();
-        booking.setTripDate(LocalDateTime.parse(dateTimeStr, dateFormatter));
+        LocalDateTime localDateTime = LocalDateTime.parse(dateTimeStr, dateFormatter);
+        booking.setTripDate(localDateTime);
         
         booking.setStatus(BookingStatus.PENDING);
         booking.setVehicle(bookingRequest.getSelectedVehicle());
@@ -101,7 +99,6 @@ public class BookingServiceImpl implements BookingService {
         
         booking = bookingRepository.save(booking);
 
-        // Return response with or without guest credentials
         if (guestCredentials != null) {
             return new BookingResponseDto(booking, guestCredentials, "Booking created successfully");
         } else {

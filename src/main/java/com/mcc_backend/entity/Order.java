@@ -27,6 +27,8 @@ public class Order {
     @Enumerated(EnumType.STRING)
     private PaymentMethod paymentMethod;
 
+    private String cardToken;
+
     @OneToOne(mappedBy = "order")
     private Booking booking;
 }

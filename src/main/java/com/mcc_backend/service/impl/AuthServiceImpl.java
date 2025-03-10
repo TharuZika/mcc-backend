@@ -65,7 +65,9 @@ public class AuthServiceImpl implements AuthService, UserDetailsService {
                         loginRequest.getPassword()
                 )
         );
-        return jwtUtil.generateToken(loginRequest.getUsername());
+        User user = userRepository.findByUsername(loginRequest.getUsername())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return jwtUtil.generateToken(loginRequest.getUsername(), user.getRole().getName());
     }
 
     @Override
