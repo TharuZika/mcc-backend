@@ -3,11 +3,10 @@ package com.mcc_backend.dto;
 import com.mcc_backend.entity.enums.VehicleType;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.math.BigDecimal;
 
 @Data
-public class VehicleDto {
+public class VehicleRequestDto {
     private Long id;
     private VehicleType type;
     private Integer seats;

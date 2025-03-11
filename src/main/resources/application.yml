@@ -32,4 +32,10 @@ response:
     valid-token: "Valid token"
 
 application:
-  cors-allow-origins: http://localhost:3000 
+  cors-allow-origins: "http://localhost:3000,http://localhost:3001"
+
+  gcp:
+    project-id: mcc-rental-system
+    credentials:
+      location: classpath:mcc-rental-system-70622baaa73d.json
+    bucket-name: mcc-host-tharuzika
