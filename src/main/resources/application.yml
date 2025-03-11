@@ -13,15 +13,25 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: maxtharuz4@gmail.com
+    password: uyrv yxig nirq awpl
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+    from: contact@mcc.com
+    retry-count: 3
 
 jwt:
-  secret: 1c029f6b5a56cc4ebdf3b4347fbdd6444af72eb15b59cee3e3cd5f6a225cfa2651fa7f5b53437e849854372522009fcc0e6950ad14a88aedbae7aa4a498b0129
-  expiration: 86400000
+  secret: "1c029f6b5a56cc4ebdf3b4347fbdd6444af72eb15b59cee3e3cd5f6a225cfa2651fa7f5b53437e849854372522009fcc0e6950ad14a88aedbae7aa4a498b0129"
+  expiration: "86400000"
   token-prefix: "Bearer "
-  header-string: Authorization
+  header-string: "Authorization"
 
 security:
-  public-paths: /api/auth/login,/api/auth/register,/api/vehicles/taxi,/api/vehicles/rental,/api/bookings
+  public-paths: "/api/auth/login,/api/auth/register,/api/vehicles/taxi,/api/vehicles/rental,/api/bookings"
 
 response:
   error:
@@ -35,7 +45,7 @@ application:
   cors-allow-origins: "http://localhost:3000,http://localhost:3001"
 
   gcp:
-    project-id: mcc-rental-system
+    project-id: "mcc-rental-system"
     credentials:
-      location: classpath:mcc-rental-system-70622baaa73d.json
-    bucket-name: mcc-host-tharuzika
+      location: "classpath:mcc-rental-system-70622baaa73d.json"
+    bucket-name: "mcc-host-tharuzika"

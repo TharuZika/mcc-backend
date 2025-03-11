@@ -17,8 +17,8 @@ public class VehicleDto {
     private Integer year;
     private BigDecimal pricePerDay;
     private BigDecimal pricePerKm;
-    private boolean isTaxi;
-    private boolean isRent;
+    private boolean taxi;
+    private boolean rent;
     private String imgUrl;
     private Character status;
     private MultipartFile image;

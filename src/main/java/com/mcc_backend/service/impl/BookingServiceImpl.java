@@ -13,6 +13,7 @@ import com.mcc_backend.repository.OrderRepository;
 import com.mcc_backend.repository.UserRepository;
 import com.mcc_backend.service.AuthService;
 import com.mcc_backend.service.BookingService;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,30 +50,13 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional
     public BookingResponseDto createBooking(BookingRequestDto bookingRequest) {
-        Optional<User> existingUser = userRepository.findByEmail(bookingRequest.getCustomerDetails().getEmail());
-        User user;
-        GuestCredentialsDto guestCredentials = null;
-
-        if (existingUser.isPresent()) {
-            user = existingUser.get();
-        } else {
-            String tempPassword = UUID.randomUUID().toString().substring(0, 8);
-            String username = bookingRequest.getCustomerDetails().getEmail().split("@")[0] + 
-                            UUID.randomUUID().toString().substring(0, 4);
-
-            RegisterRequest registerRequest = new RegisterRequest();
-            registerRequest.setUsername(username);
-            registerRequest.setPassword(tempPassword);
-            registerRequest.setEmail(bookingRequest.getCustomerDetails().getEmail());
-            registerRequest.setMobileNo(bookingRequest.getCustomerDetails().getPhone());
-            
-            String[] names = bookingRequest.getCustomerDetails().getName().split(" ", 2);
-            registerRequest.setFirstName(names[0]);
-            registerRequest.setLastName(names.length > 1 ? names[1] : "");
-
-            user = authService.register(registerRequest);
-            guestCredentials = new GuestCredentialsDto(username, tempPassword);
-        }
+        System.out.println(bookingRequest.getBookingDetails());
+        System.out.println(bookingRequest.getCardToken());
+        System.out.println(bookingRequest.getCustomerDetails());
+        System.out.println(bookingRequest.getTotalAmount());
+        System.out.println(bookingRequest.getVehicle());
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Optional<User> existingUser = userRepository.findById(user.getId());
 
         Order order = new Order();
         order.setDate(LocalDateTime.now());
@@ -83,7 +67,7 @@ public class BookingServiceImpl implements BookingService {
 
         Booking booking = new Booking();
         booking.setOrder(order);
-        booking.setUser(user);
+        booking.setUser(existingUser.get());
         booking.setBookingType(BookingType.valueOf(bookingRequest.getBookingDetails().getServiceType().toUpperCase()));
 
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
@@ -93,16 +77,16 @@ public class BookingServiceImpl implements BookingService {
         booking.setTripDate(localDateTime);
         
         booking.setStatus(BookingStatus.PENDING);
-        booking.setVehicle(bookingRequest.getSelectedVehicle());
+        booking.setVehicle(bookingRequest.getVehicle());
         booking.setPickupLocation(bookingRequest.getBookingDetails().getPickupLocation());
         booking.setDropLocation(bookingRequest.getBookingDetails().getDropLocation());
         
         booking = bookingRepository.save(booking);
 
-        if (guestCredentials != null) {
-            return new BookingResponseDto(booking, guestCredentials, "Booking created successfully");
-        } else {
+        if (booking.getId() != null) {
             return new BookingResponseDto(booking, "Booking created successfully");
+        }else {
+            return new BookingResponseDto(booking, "Booking not created");
         }
     }
 } 

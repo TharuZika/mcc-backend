@@ -1,8 +1,13 @@
 package com.mcc_backend.service.impl;
 
-import com.mcc_backend.dto.VehicleDto;
-import com.mcc_backend.dto.VehicleListResponse;
+import com.mcc_backend.dto.*;
+import com.mcc_backend.entity.Booking;
+import com.mcc_backend.entity.Status;
+import com.mcc_backend.entity.User;
 import com.mcc_backend.entity.Vehicle;
+import com.mcc_backend.entity.enums.BookingStatus;
+import com.mcc_backend.repository.BookingRepository;
+import com.mcc_backend.repository.UserRepository;
 import com.mcc_backend.repository.VehicleRepository;
 import com.mcc_backend.service.AdminService;
 import com.mcc_backend.service.GoogleCloudStorageService;
@@ -19,22 +24,26 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AdminServiceImpl implements AdminService {
 
     private final VehicleRepository vehicleRepository;
     private final GoogleCloudStorageService googleCloudStorageService;
+    private final UserRepository userRepository;
+    private final BookingRepository bookingRepository;
 
-    public AdminServiceImpl(VehicleRepository vehicleRepository, GoogleCloudStorageService googleCloudStorageService) {
+    public AdminServiceImpl(VehicleRepository vehicleRepository, GoogleCloudStorageService googleCloudStorageService, UserRepository userRepository, BookingRepository bookingRepository) {
         this.vehicleRepository = vehicleRepository;
         this.googleCloudStorageService = googleCloudStorageService;
+        this.userRepository = userRepository;
+        this.bookingRepository = bookingRepository;
     }
 
     @Override
     @Transactional
     public Vehicle addVehicle(VehicleDto vehicleDto) {
-        System.out.println("Vehicle add");
         Vehicle vehicle = new Vehicle();
         updateVehicleFromDto(vehicle, vehicleDto);
         vehicle.setCreatedAt(LocalDateTime.now());
@@ -73,6 +82,66 @@ public class AdminServiceImpl implements AdminService {
         );
     }
 
+    @Override
+    public UserListResponse fetchUsersWithPagination(int i, int size) {
+        Pageable pageable = PageRequest.of(i, size);
+        Page<User> userPage = userRepository.findAll(pageable);
+
+        return new UserListResponse(
+                userPage.getContent(),
+                userPage.getTotalElements(),
+                userPage.getNumber(),
+                userPage.getTotalPages()
+        );
+    }
+
+    @Override
+    public BookingsListResponse fetchBookingsWithPagination(int i, int size) {
+        Pageable pageable = PageRequest.of(i, size);
+        Page<Booking> bookingPage = bookingRepository.findAll(pageable);
+
+        return new BookingsListResponse(
+                bookingPage.getContent(),
+                bookingPage.getTotalElements(),
+                bookingPage.getNumber(),
+                bookingPage.getTotalPages()
+        );
+    }
+
+    @Override
+    public ResponseDto approveBooking(long bookingId) {
+        ResponseDto response = new ResponseDto();
+        response.setStatus(200);
+        response.setMessage("Booking approved");
+
+        Optional<Booking> existingBooking = bookingRepository.findById(bookingId);
+
+        Status status = new Status();
+        status.setId(1L);
+
+        Booking booking = existingBooking.get();
+        booking.setStatus(BookingStatus.CONFIRMED);
+        bookingRepository.save(booking);
+        return response;
+    }
+
+    public ResponseDto rejectBooking(long bookingId) {
+        ResponseDto response = new ResponseDto();
+        response.setStatus(200);
+        response.setMessage("Booking approved");
+
+        Optional<Booking> existingBooking = bookingRepository.findById(bookingId);
+
+        Status status = new Status();
+        status.setId(1L);
+
+        Booking booking = existingBooking.get();
+        booking.setStatus(BookingStatus.CANCELLED);
+        bookingRepository.save(booking);
+        return response;
+    }
+
+
     private void updateVehicleFromDto(Vehicle vehicle, VehicleDto dto) {
         vehicle.setType(dto.getType());
         vehicle.setSeats(dto.getSeats());
@@ -82,11 +151,9 @@ public class AdminServiceImpl implements AdminService {
         vehicle.setYear(dto.getYear());
         vehicle.setPricePerDay(dto.getPricePerDay());
         vehicle.setPricePerKm(dto.getPricePerKm());
-        vehicle.setTaxi(dto.isTaxi());
-        vehicle.setRent(dto.isRent());
+        vehicle.setTaxi(true);
+        vehicle.setRent(true);
         vehicle.setStatus(dto.getStatus());
-
-        System.out.println("Trying to upload vehicle image");
 
         if (dto.getImage() != null && !dto.getImage().isEmpty()) {
             try {
@@ -96,13 +163,8 @@ public class AdminServiceImpl implements AdminService {
                     vehicle.getImgUrl()
                 );
                 vehicle.setImgUrl(imageUrl);
-                System.out.println("uploaded image: "+imageUrl);
-            } catch (IOException e) {
-                System.out.println(e);
+            } catch (Exception e) {
                 throw new RuntimeException("Failed to upload vehicle image", e);
-            } catch (CustomCheckedException e) {
-                System.out.println(e);
-                throw new RuntimeException(e);
             }
         }
     }

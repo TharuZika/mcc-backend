@@ -86,6 +86,7 @@ public class CommonConstants {
     public static final Integer EMAIL_TEMPLATE_CONFIGURE_USER = 1;
     public static final Integer EMAIL_TEMPLATE_REGISTRATION_SUCCESS = 2;
     public static final Integer EMAIL_TEMPLATE_PWD_RESET = 3;
+    public static final Integer EMAIL_GUEST_ACCOUNT = 4;
 
     // Params
     public static final String PARAM_EMAIL_SEND_TO = "EMAIL_SEND_TO";

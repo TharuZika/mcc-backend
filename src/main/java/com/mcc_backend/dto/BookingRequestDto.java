@@ -9,7 +9,7 @@ public class BookingRequestDto {
     private String paymentMethod;
     private String cardToken;
     private BookingDetailsDto bookingDetails;
-    private Vehicle selectedVehicle;
+    private Vehicle vehicle;
     private BigDecimal totalAmount;
     private CustomerDetailsDto customerDetails;
 }

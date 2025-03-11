@@ -16,7 +16,6 @@ public class VehicleListResponse {
         this.totalPages = totalPages;
     }
 
-    // Getters and Setters
     public List<Vehicle> getVehicles() {
         return vehicles;
     }
