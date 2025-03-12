@@ -19,6 +19,6 @@ public class VehicleRequestDto {
     private boolean isTaxi;
     private boolean isRent;
     private String imgUrl;
-    private Character status;
+    private int status;
     private MultipartFile image;
 } 

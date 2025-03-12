@@ -10,7 +10,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class BookingsListResponse {
-    private List<Booking> vehicles;
+    private List<Booking> bookings;
     private long totalCount;
     private int currentPage;
     private int totalPages;

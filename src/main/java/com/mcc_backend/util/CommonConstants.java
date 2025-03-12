@@ -53,13 +53,13 @@ public class CommonConstants {
 
     // YML Properties
     @Value("${application.cors-allow-origins}")
-    public static String YML_CORS_ALLOW_ORIGINS;
+    private String corsAllowOrigins;
 
     @Value("${spring.mail.retry-count}")
-    public static String MAX_RETRY_COUNT;
+    private String maxRetryCount;
 
     @Value("${spring.mail.from}")
-    public static String FROM_MAIL;
+    private String fromMail;
 
     @Value("${application.url.confirm-email}")
     public static String CONFIRM_USER_EMAIL_URL;
@@ -114,20 +114,20 @@ public class CommonConstants {
 
     // JWT Constants
     @Value("${jwt.secret}")
-    public static String JWT_SECRET = "1c029f6b5a56cc4ebdf3b4347fbdd6444af72eb15b59cee3e3cd5f6a225cfa2651fa7f5b53437e849854372522009fcc0e6950ad14a88aedbae7aa4a498b0129";
+    private String jwtSecret;
 
     @Value("${jwt.expiration}")
-    public static Long JWT_EXPIRATION = 86400000L;
+    private Long jwtExpiration;
 
     @Value("${jwt.token-prefix}")
-    public static String TOKEN_PREFIX = "Bearer ";
+    private String tokenPrefix;
 
     @Value("${jwt.header-string}")
-    public static String HEADER_STRING = "Authorization";
+    private String headerString;
 
     // Security Constants
     @Value("${security.public-paths}")
-    private String publicPathsString = "/api/auth/login,/api/auth/register,/api/vehicles/taxi,/api/vehicles/rental,/api/bookings";
+    private String publicPathsString;
 
     public List<String> getPublicPaths() {
         return Arrays.asList(publicPathsString.split(","));
@@ -135,16 +135,16 @@ public class CommonConstants {
 
     // Response Messages
     @Value("${response.error.unauthorized}")
-    public static String UNAUTHORIZED_MESSAGE;
+    private String unauthorizedMessage;
 
     @Value("${response.error.token-expired}")
-    public static String TOKEN_EXPIRED_MESSAGE;
+    private String tokenExpiredMessage;
 
     @Value("${response.error.invalid-token}")
-    public static String INVALID_TOKEN_MESSAGE;
+    private String invalidTokenMessage;
 
     @Value("${response.success.valid-token}")
-    public static String VALID_TOKEN_MESSAGE;
+    private String validTokenMessage;
 
     // HTTP Status Codes
     public static final int STATUS_OK = 200;
@@ -170,4 +170,49 @@ public class CommonConstants {
     public static final String INVALID_EMAIL = "Invalid email format";
     public static final String INVALID_PHONE = "Invalid phone number format";
     public static final String INVALID_DATE = "Invalid date format";
+
+    // Getters
+    public String getCorsAllowOrigins() {
+        return corsAllowOrigins;
+    }
+
+    public String getMaxRetryCount() {
+        return maxRetryCount;
+    }
+
+    public String getFromMail() {
+        return fromMail;
+    }
+
+    public String getJwtSecret() {
+        return jwtSecret;
+    }
+
+    public Long getJwtExpiration() {
+        return jwtExpiration;
+    }
+
+    public String getTokenPrefix() {
+        return tokenPrefix;
+    }
+
+    public String getHeaderString() {
+        return headerString;
+    }
+
+    public String getUnauthorizedMessage() {
+        return unauthorizedMessage;
+    }
+
+    public String getTokenExpiredMessage() {
+        return tokenExpiredMessage;
+    }
+
+    public String getInvalidTokenMessage() {
+        return invalidTokenMessage;
+    }
+
+    public String getValidTokenMessage() {
+        return validTokenMessage;
+    }
 }

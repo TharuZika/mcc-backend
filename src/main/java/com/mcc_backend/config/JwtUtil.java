@@ -12,8 +12,14 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
+    private final CommonConstants commonConstants;
+
+    public JwtUtil(CommonConstants commonConstants) {
+        this.commonConstants = commonConstants;
+    }
+
     private SecretKey getSigningKey() {
-        return Keys.hmacShaKeyFor(CommonConstants.JWT_SECRET.getBytes());
+        return Keys.hmacShaKeyFor(commonConstants.getJwtSecret().getBytes());
     }
 
     public String generateToken(String username, String role) {
@@ -21,7 +27,7 @@ public class JwtUtil {
                 .setSubject(username)
                 .claim("role", role)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + CommonConstants.JWT_EXPIRATION))
+                .setExpiration(new Date(System.currentTimeMillis() + commonConstants.getJwtExpiration()))
                 .signWith(getSigningKey())
                 .compact();
     }
@@ -29,7 +35,7 @@ public class JwtUtil {
     public ResponseDto validateAndGetUsername(String token) {
         if (token == null || token.isEmpty()) {
             return new ResponseDto(CommonConstants.STATUS_UNAUTHORIZED, 
-                                 CommonConstants.UNAUTHORIZED_MESSAGE, 
+                                 commonConstants.getUnauthorizedMessage(), 
                                  null);
         }
 
@@ -42,24 +48,24 @@ public class JwtUtil {
 
             if (claims.getExpiration().before(new Date())) {
                 return new ResponseDto(CommonConstants.STATUS_UNAUTHORIZED, 
-                                     CommonConstants.TOKEN_EXPIRED_MESSAGE, 
+                                     commonConstants.getTokenExpiredMessage(), 
                                      null);
             }
 
             return new ResponseDto(CommonConstants.STATUS_OK, 
-                                 CommonConstants.VALID_TOKEN_MESSAGE, 
+                                 commonConstants.getValidTokenMessage(), 
                                  claims.getSubject());
         } catch (ExpiredJwtException e) {
             System.out.println(e.getMessage());
             System.out.println(e);
             return new ResponseDto(CommonConstants.STATUS_UNAUTHORIZED, 
-                                 CommonConstants.TOKEN_EXPIRED_MESSAGE, 
+                                 commonConstants.getTokenExpiredMessage(), 
                                  null);
         } catch (JwtException e) {
             System.out.println(e.getMessage());
             System.out.println(e);
             return new ResponseDto(CommonConstants.STATUS_UNAUTHORIZED, 
-                                 CommonConstants.INVALID_TOKEN_MESSAGE, 
+                                 commonConstants.getInvalidTokenMessage(), 
                                  null);
         }
     }

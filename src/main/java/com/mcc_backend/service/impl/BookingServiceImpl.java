@@ -1,9 +1,6 @@
 package com.mcc_backend.service.impl;
 
-import com.mcc_backend.dto.BookingRequestDto;
-import com.mcc_backend.dto.BookingResponseDto;
-import com.mcc_backend.dto.GuestCredentialsDto;
-import com.mcc_backend.dto.RegisterRequest;
+import com.mcc_backend.dto.*;
 import com.mcc_backend.entity.*;
 import com.mcc_backend.entity.enums.BookingStatus;
 import com.mcc_backend.entity.enums.BookingType;
@@ -22,6 +19,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -88,5 +86,17 @@ public class BookingServiceImpl implements BookingService {
         }else {
             return new BookingResponseDto(booking, "Booking not created");
         }
+    }
+
+    @Override
+    public BookingsListResponse fetchBookings() {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        List<Booking> byUserWithin = bookingRepository.findByUser(user);
+
+        BookingsListResponse response = new BookingsListResponse(null, 0, 0, 1);
+        response.setTotalCount(byUserWithin.size());
+        response.setBookings(byUserWithin);
+
+        return response;
     }
 } 
