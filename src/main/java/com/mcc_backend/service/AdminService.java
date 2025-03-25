@@ -19,4 +19,8 @@ public interface AdminService {
     ResponseDto approveBooking(long bookingId);
 
     ResponseDto rejectBooking(long bookingId);
+
+    DashboardDto fetchDashboardData();
+
+    FinanceDto fetchFinanceData();
 }

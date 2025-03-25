@@ -13,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserListResponse {
-    private List<User> vehicles;
+    private List<User> users;
     private long totalCount;
     private int currentPage;
     private int totalPages;

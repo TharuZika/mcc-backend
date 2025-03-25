@@ -1,131 +1,63 @@
 package com.mcc_backend.config;
 
-import com.mcc_backend.dto.ResponseDto;
-import com.mcc_backend.util.CommonConstants;
-import io.jsonwebtoken.*;
+import com.mcc_backend.entity.User;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
+import java.security.Key;
 import java.util.Date;
+import java.util.function.Function;
 
 @Component
 public class JwtUtil {
 
-    private final CommonConstants commonConstants;
+    private static final String SECRET_KEY = "n5Jw3/Z7DTz5e4fHn5rG6ftBLh5yYmbHZH8kpoIzjvE="; // Secure this in properties/env
 
-    public JwtUtil(CommonConstants commonConstants) {
-        this.commonConstants = commonConstants;
-    }
-
-    private SecretKey getSigningKey() {
-        return Keys.hmacShaKeyFor(commonConstants.getJwtSecret().getBytes());
-    }
-
-    public String generateToken(String username, String role) {
-        return Jwts.builder()
-                .setSubject(username)
-                .claim("role", role)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + commonConstants.getJwtExpiration()))
-                .signWith(getSigningKey())
-                .compact();
-    }
-
-    public ResponseDto validateAndGetUsername(String token) {
-        if (token == null || token.isEmpty()) {
-            return new ResponseDto(CommonConstants.STATUS_UNAUTHORIZED, 
-                                 commonConstants.getUnauthorizedMessage(), 
-                                 null);
-        }
-
-        try {
-            Claims claims = Jwts.parserBuilder()
-                    .setSigningKey(getSigningKey())
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody();
-
-            if (claims.getExpiration().before(new Date())) {
-                return new ResponseDto(CommonConstants.STATUS_UNAUTHORIZED, 
-                                     commonConstants.getTokenExpiredMessage(), 
-                                     null);
-            }
-
-            return new ResponseDto(CommonConstants.STATUS_OK, 
-                                 commonConstants.getValidTokenMessage(), 
-                                 claims.getSubject());
-        } catch (ExpiredJwtException e) {
-            System.out.println(e.getMessage());
-            System.out.println(e);
-            return new ResponseDto(CommonConstants.STATUS_UNAUTHORIZED, 
-                                 commonConstants.getTokenExpiredMessage(), 
-                                 null);
-        } catch (JwtException e) {
-            System.out.println(e.getMessage());
-            System.out.println(e);
-            return new ResponseDto(CommonConstants.STATUS_UNAUTHORIZED, 
-                                 commonConstants.getInvalidTokenMessage(), 
-                                 null);
-        }
-    }
-
-    public String getUsernameFromToken(String token) {
-        try {
-            return Jwts.parserBuilder()
-                    .setSigningKey(getSigningKey())
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody()
-                    .getSubject();
-        } catch (JwtException e) {
-            return null;
-        }
-    }
-
-    public boolean validateToken(String token, String username) {
-        try {
-            String tokenUsername = extractUsername(token);
-            return username.equals(tokenUsername) && !isTokenExpired(token);
-        } catch (JwtException e) {
-            return false;
-        }
+    private Key getSigningKey() {
+        byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 
     public String extractUsername(String token) {
-        try {
-            return Jwts.parserBuilder()
-                    .setSigningKey(getSigningKey())
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody()
-                    .getSubject();
-        } catch (JwtException e) {
-            return null;
-        }
+        return extractClaim(token, Claims::getSubject);
     }
 
-    private boolean isTokenExpired(String token) {
-        try {
-            Date expiration = Jwts.parserBuilder()
-                    .setSigningKey(getSigningKey())
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody()
-                    .getExpiration();
-            return expiration.before(new Date());
-        } catch (ExpiredJwtException e) {
-            return true;
-        } catch (JwtException e) {
-            return true;
-        }
+    public Date extractExpiration(String token) {
+        return extractClaim(token, Claims::getExpiration);
     }
 
-    public Claims getClaimsFromToken(String token) {
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+        Claims claims = extractAllClaims(token);
+        return claimsResolver.apply(claims);
+    }
+
+    private Claims extractAllClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
+    }
+
+    private boolean isTokenExpired(String token) {
+        return extractExpiration(token).before(new Date());
+    }
+
+    public boolean validateToken(String token, String username) {
+        return username.equals(extractUsername(token)) && !isTokenExpired(token);
+    }
+
+    public String generateToken(User userDetails) {
+        return Jwts.builder()
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10-hour expiry
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .compact();
     }
 }

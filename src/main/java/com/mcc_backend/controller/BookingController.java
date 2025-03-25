@@ -4,20 +4,19 @@ import com.mcc_backend.dto.BookingRequestDto;
 import com.mcc_backend.dto.BookingResponseDto;
 import com.mcc_backend.dto.BookingsListResponse;
 import com.mcc_backend.service.BookingService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/bookings")
+@RequiredArgsConstructor
 public class BookingController {
 
     private final BookingService bookingService;
 
-    public BookingController(BookingService bookingService) {
-        this.bookingService = bookingService;
-    }
 
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<BookingResponseDto> createBooking(@RequestBody BookingRequestDto bookingRequest) {
         BookingResponseDto response = bookingService.createBooking(bookingRequest);
         return ResponseEntity.ok(response);

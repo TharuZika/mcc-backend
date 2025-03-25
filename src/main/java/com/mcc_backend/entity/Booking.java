@@ -1,5 +1,6 @@
 package com.mcc_backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.mcc_backend.entity.enums.BookingStatus;
 import com.mcc_backend.entity.enums.BookingType;
 import jakarta.persistence.*;
@@ -16,6 +17,7 @@ public class Booking {
 
     @OneToOne
     @JoinColumn(name = "order_id", nullable = false)
+    @JsonManagedReference
     private Order order;
 
     @ManyToOne

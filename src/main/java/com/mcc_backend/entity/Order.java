@@ -1,5 +1,6 @@
 package com.mcc_backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.mcc_backend.entity.enums.PaymentMethod;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -30,5 +31,6 @@ public class Order {
     private String cardToken;
 
     @OneToOne(mappedBy = "order")
+    @JsonBackReference
     private Booking booking;
 }

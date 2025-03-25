@@ -7,11 +7,13 @@ import com.mcc_backend.entity.User;
 import com.mcc_backend.entity.Vehicle;
 import com.mcc_backend.entity.enums.BookingStatus;
 import com.mcc_backend.repository.BookingRepository;
+import com.mcc_backend.repository.OrderRepository;
 import com.mcc_backend.repository.UserRepository;
 import com.mcc_backend.repository.VehicleRepository;
 import com.mcc_backend.service.AdminService;
 import com.mcc_backend.service.GoogleCloudStorageService;
 import com.mcc_backend.util.CustomCheckedException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,24 +24,20 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class AdminServiceImpl implements AdminService {
 
     private final VehicleRepository vehicleRepository;
     private final GoogleCloudStorageService googleCloudStorageService;
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
-
-    public AdminServiceImpl(VehicleRepository vehicleRepository, GoogleCloudStorageService googleCloudStorageService, UserRepository userRepository, BookingRepository bookingRepository) {
-        this.vehicleRepository = vehicleRepository;
-        this.googleCloudStorageService = googleCloudStorageService;
-        this.userRepository = userRepository;
-        this.bookingRepository = bookingRepository;
-    }
+    private final OrderRepository orderRepository;
 
     @Override
     @Transactional
@@ -139,6 +137,37 @@ public class AdminServiceImpl implements AdminService {
         booking.setStatus(BookingStatus.CANCELLED);
         bookingRepository.save(booking);
         return response;
+    }
+
+    @Override
+    public DashboardDto fetchDashboardData() {
+        DashboardDto response = null;
+        try {
+            long totalBookings = bookingRepository.count();
+            long totalUsers = userRepository.count();
+            long vehicleCount = vehicleRepository.count();
+            BigDecimal totalRev = orderRepository.calculateTotalRevenue();
+
+            response = new DashboardDto();
+            response.setTotalBookings(totalBookings);
+            response.setTotalUsers(totalUsers);
+            response.setTotalVehicles(vehicleCount);
+            response.setTotalRevenue(totalRev);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new DashboardDto();
+        }
+        return response;
+    }
+
+    @Override
+    public FinanceDto fetchFinanceData() {
+        BigDecimal totalRevenue = orderRepository.calculateTotalRevenue();
+        Long totalBookings = orderRepository.calculateTotalBookings();
+        List<GraphData> graphData = orderRepository.findGraphData();
+        List<OrderHistory> orderHistory = orderRepository.findOrderHistory();
+
+        return new FinanceDto(totalRevenue, totalBookings, graphData, orderHistory);
     }
 
 

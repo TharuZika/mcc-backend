@@ -31,7 +31,7 @@ jwt:
   header-string: "Authorization"
 
 security:
-  public-paths: "/api/auth/login,/api/auth/register,/api/vehicles/taxi,/api/vehicles/rental,/api/bookings"
+  public-paths: "/api/auth/login,/api/auth/admin/login,/api/auth/register,/api/vehicles/taxi,/api/vehicles/rental,/api/bookings"
 
 response:
   error:
